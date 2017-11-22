@@ -6,10 +6,11 @@
  * Licensed under The MIT License.
  * Redistributions of files must retain the above copyright notice.
  */
-/**
- * @author Macc Liu <mail@maccliu.com>
- */
-// TODO: check include path
-//ini_set('include_path', ini_get('include_path'));
+require('D:/Projects/github/dida-autoloader--dev/src/Dida/Autoloader.php');
+\Dida\Autoloader::init();
+\Dida\Autoloader::addPsr4('Dida\\', 'D:/Projects/github/dida-html--dev/src/Dida');
 
-// put your code here
+require('D:/Projects/github/dida-debug--dev/src/Dida/Debug/Debug.php');
+
+// require __DIR__ . '/../vendor/autoload.php';
+require('D:/Projects/github/composer/vendor/autoload.php');
