@@ -348,7 +348,8 @@ class ActiveElement
     /**
      * 新增一个子节点。
      *
-     * @param  $element
+     * @param string|null|\Dida\HTML\ActiveElement   $element
+     * 
      * @return \Dida\HTML\ActiveElement
      */
     public function &addChild($element = null)
