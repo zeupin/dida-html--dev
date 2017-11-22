@@ -10,9 +10,9 @@
 namespace Dida\Html;
 
 /**
- * Element
+ * ActiveElement
  */
-class Element
+class ActiveElement
 {
     /**
      * Version
@@ -80,19 +80,19 @@ class Element
 
     /**
      * 包元素
-     * @var \Dida\HTML\Element
+     * @var \Dida\HTML\ActiveElement
      */
     protected $wrapper = null;
 
     /**
      * 前元素
-     * @var \Dida\HTML\Element
+     * @var \Dida\HTML\ActiveElement
      */
     protected $before = null;
 
     /**
      * 后元素
-     * @var \Dida\HTML\Element
+     * @var \Dida\HTML\ActiveElement
      */
     protected $after = null;
 
@@ -165,25 +165,25 @@ class Element
 
     public function getID()
     {
-        return $this->props('id');
+        return $this->props['id'];
     }
 
 
     public function getName()
     {
-        return $this->props('name');
+        return $this->props['name'];
     }
 
 
     public function getClass()
     {
-        return $this->props('class');
+        return $this->props['class'];
     }
 
 
     public function getStyle()
     {
-        return $this->props('style');
+        return (isset($this->props['style'])) ? $this->props['style'] : null;
     }
 
 
@@ -308,11 +308,11 @@ class Element
      *
      * @param string $tag
      *
-     * @return \Dida\HTML\Element
+     * @return \Dida\HTML\ActiveElement
      */
     public function &wrap($tag = 'div')
     {
-        $this->wrapper = new HtmlElement($tag);
+        $this->wrapper = new \Dida\HTML\ActiveElement($tag);
         return $this->wrapper;
     }
 
@@ -322,11 +322,11 @@ class Element
      *
      * @param string $tag
      *
-     * @return \Dida\HTML\Element
+     * @return \Dida\HTML\ActiveElement
      */
     public function &insertBefore($tag = null)
     {
-        $this->before = new HtmlElement($tag);
+        $this->before = new \Dida\HTML\ActiveElement($tag);
         return $this->before;
     }
 
@@ -336,11 +336,11 @@ class Element
      *
      * @param string $tag
      *
-     * @return \Dida\HTML\Element
+     * @return \Dida\HTML\ActiveElement
      */
     public function &insertAfter($tag = null)
     {
-        $this->after = new HtmlElement($tag);
+        $this->after = new \Dida\HTML\ActiveElement($tag);
         return $this->after;
     }
 
@@ -349,11 +349,11 @@ class Element
      * 新增一个子节点。
      *
      * @param  $tag
-     * @return \Dida\HTML\Element
+     * @return \Dida\HTML\ActiveElement
      */
     public function &addChild($tag = null)
     {
-        $element = new HtmlElement($tag);
+        $element = new \Dida\HTML\ActiveElement($tag);
         $this->children[] = &$element;
         return $element;
     }
