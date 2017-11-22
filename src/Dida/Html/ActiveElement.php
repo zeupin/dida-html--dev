@@ -348,14 +348,26 @@ class ActiveElement
     /**
      * 新增一个子节点。
      *
-     * @param  $tag
+     * @param  $element
      * @return \Dida\HTML\ActiveElement
      */
-    public function &addChild($tag = null)
+    public function &addChild($element = null)
     {
-        $element = new \Dida\HTML\ActiveElement($tag);
-        $this->children[] = &$element;
-        return $element;
+        // 如果element为null或者为字符串
+        if (is_null($element) || is_string($element)) {
+            $ele = new \Dida\HTML\ActiveElement($element);
+            $this->children[] = &$ele;
+            return $ele;
+        }
+
+        // 如果$element是个对象，且可以build()
+        if (is_object($element) && method_exists($element, 'build')) {
+            $this->children[] = &$element;
+            return $element;
+        }
+
+        // 其它情况就抛异常
+        throw new HtmlException(null, HtmlException::INVALID_ELEMENT_TYPE);
     }
 
 

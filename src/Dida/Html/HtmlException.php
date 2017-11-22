@@ -33,4 +33,11 @@ class HtmlException extends \Exception
      */
     const INVALID_PROPERTY_VALUE = 1002;
 
+    /**
+     * 无效的元素类型
+     * 1. 在 ActiveElement->addChild($element)时，$element只能是一个标签名或者是一个
+     *    有build()方法的对象，否则就会抛出这个异常。
+     */
+    const INVALID_ELEMENT_TYPE = 1003;
+
 }
