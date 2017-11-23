@@ -79,6 +79,13 @@ class ActiveElement
     protected $innerHTML = '';
 
     /**
+     * 本元素归属于哪个元素
+     *
+     * @var \Dida\HTML\ActiveElement
+     */
+    public $belongsTo = null;
+
+    /**
      * 包装元素
      * @var \Dida\HTML\ActiveElement
      */
@@ -120,18 +127,40 @@ class ActiveElement
      */
     public function setTag($tag = null, $more = null)
     {
-        $this->tag = $tag;
-        if ($this->tag) {
+        if (is_null($tag)) {
+            $this->tag = null;
+            $this->opentag = '';
+            $this->autoclose = false;
+            return $this;
+        }
+
+        if (is_string($tag)) {
+            $tag = trim($tag);
+
+            // tag为空
+            if ($tag === '') {
+                $this->tag = null;
+                $this->opentag = '';
+                $this->autoclose = false;
+                return $this;
+            }
+
+            // 普通元素
+            $this->tag = $tag;
             if ($more) {
                 $this->opentag = $this->tag . ' ' . trim($more);
             } else {
                 $this->opentag = $this->tag;
             }
-        } else {
-            $this->opentag = '';
+
+            // 是否是自闭合元素
+            $this->autoclose = array_key_exists($tag, $this->autoclose_element_list);
+
+            return $this;
         }
-        $this->autoclose = array_key_exists($tag, $this->autoclose_element_list);
-        return $this;
+
+        // 其它情况抛异常
+        throw new HtmlException('', HtmlException::INVALID_TAG_TYPE);
     }
 
 
@@ -318,30 +347,57 @@ class ActiveElement
 
 
     /**
+     * 创建或拿到一个新元素。
+     *
+     * @param mixed $tag
+     */
+    protected function &addNew(&$element = null)
+    {
+        if (is_null($element) || is_string($element)) {
+            // 如果element为null或者为字符串
+            $ele = new \Dida\HTML\ActiveElement($element);
+        } elseif (is_object($element) && is_a($element, __CLASS__)) {
+            // 如果$element是个对象，且可以build()
+            $ele = &$element;
+        } else {
+            // 其它情况就抛异常
+            throw new HtmlException(null, HtmlException::INVALID_ELEMENT_TYPE);
+        }
+
+        // 设置ele元素归属于本元素
+        $ele->belongsTo = &$this;
+
+        return $ele;
+    }
+
+
+    /**
      * 在本元素的前面插一个元素。
      *
-     * @param string $tag
+     * @param string|null|\Dida\HTML\ActiveElement   $element
      *
      * @return \Dida\HTML\ActiveElement
      */
-    public function &addBefore($tag = null)
+    public function &addBefore($element = null)
     {
-        $this->before = new \Dida\HTML\ActiveElement($tag);
-        return $this->before;
+        $ele = $this->addNew($element);
+        $this->before = &$ele;
+        return $ele;
     }
 
 
     /**
      * 在本元素的后面插一个元素。
      *
-     * @param string $tag
+     * @param string|null|\Dida\HTML\ActiveElement   $element
      *
      * @return \Dida\HTML\ActiveElement
      */
-    public function &addAfter($tag = null)
+    public function &addAfter($element = null)
     {
-        $this->after = new \Dida\HTML\ActiveElement($tag);
-        return $this->after;
+        $ele = $this->addNew($element);
+        $this->after = &$ele;
+        return $ele;
     }
 
 
@@ -354,21 +410,9 @@ class ActiveElement
      */
     public function &addChild($element = null)
     {
-        // 如果element为null或者为字符串
-        if (is_null($element) || is_string($element)) {
-            $ele = new \Dida\HTML\ActiveElement($element);
-            $this->children[] = &$ele;
-            return $ele;
-        }
-
-        // 如果$element是个对象，且可以build()
-        if (is_object($element) && method_exists($element, 'build')) {
-            $this->children[] = &$element;
-            return $element;
-        }
-
-        // 其它情况就抛异常
-        throw new HtmlException(null, HtmlException::INVALID_ELEMENT_TYPE);
+        $ele = $this->addNew($element);
+        $this->children[] = &$ele;
+        return $ele;
     }
 
 
@@ -385,7 +429,7 @@ class ActiveElement
             } elseif ($value === true) {
                 $output[] = ' ' . htmlspecialchars($name);
             } elseif ($name === 'style') {
-                $output[] = ' style' . '="' . htmlspecialchars($string, ENT_COMPAT | ENT_HTML401) . '"';
+                $output[] = ' style' . '="' . htmlspecialchars($string, ENT_COMPAT | ENT_HTML5) . '"';
             } else {
                 $output[] = ' ' . htmlspecialchars($name) . '="' . htmlspecialchars($value) . '"';
             }
@@ -413,7 +457,9 @@ class ActiveElement
          */
         $output = [];
         foreach ($this->children as $element) {
-            $output[] = $element->build();
+            if ($element->belongsTo === $this) {
+                $output[] = $element->build();
+            }
         }
         return implode('', $output);
     }
@@ -447,7 +493,7 @@ class ActiveElement
         $output = [];
 
         // 前元素
-        if (!is_null($this->before)) {
+        if (!is_null($this->before) && ($this->belongsTo === $this)) {
             $output[] = $this->before->build();
         }
 
@@ -455,7 +501,7 @@ class ActiveElement
         $output[] = $this->buildMe();
 
         // 后元素
-        if (!is_null($this->after)) {
+        if (!is_null($this->after) && ($this->belongsTo === $this)) {
             $output[] = $this->after->build();
         }
 
