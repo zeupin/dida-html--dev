@@ -255,4 +255,46 @@ class ActiveElementTest extends TestCase
 
         $this->assertEquals('<div id="b1"></div>', $html_b);
     }
+
+
+
+    public function test_issue1_4()
+    {
+        echo "\n\n" . __METHOD__ . "\n";
+
+        // a系列
+        $a1 = ActiveElement::make('div')->setID('a1');
+        $a2 = ActiveElement::make('div')->setID('a2');
+        $a3 = ActiveElement::make('div')->setID('a3');
+        $a4 = ActiveElement::make('div')->setID('a4');
+
+        $a1->addChild($a2)->addChild($a3)->addChild($a4);
+
+        // b系列
+        $b1 = ActiveElement::make('div')->setID('b1');
+        $b2 = ActiveElement::make('div')->setID('b2');
+        $b3 = ActiveElement::make('div')->setID('b3');
+        $b4 = ActiveElement::make('div')->setID('b4');
+
+        $b1->addChild($b2)->addChild($b3)->addChild($b4);
+
+        // 测试递归调用
+        $a1->wrap($b1);
+        $b1->wrap($a1);
+
+        $html_a = $a1->build();
+        $html_b = $b1->build();
+
+        echo "\n$html_a";
+        echo "\n$html_b";
+
+        $a1->addAfter($b1);
+        $b1->addBefore($a1);
+
+        $html_a = $a1->build();
+        $html_b = $b1->build();
+
+        echo "\n$html_a";
+        echo "\n$html_b";
+    }
 }
