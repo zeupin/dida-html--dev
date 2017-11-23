@@ -376,7 +376,7 @@ class ActiveElement
     {
         if (is_null($element) || is_string($element)) {
             // 如果element为null或者为字符串
-            $ele = ActiveElement::make($element);
+            $ele = new \Dida\HTML\ActiveElement($element);
         } elseif (is_object($element) && is_a($element, __CLASS__)) {
             // 如果$element是个对象，且可以build()
             $ele = $element;
