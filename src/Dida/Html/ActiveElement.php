@@ -496,9 +496,9 @@ class ActiveElement
          * 合并子节点
          */
         $output = [];
-        foreach ($this->children as $element) {
-            if ($element->belongsTo === $this) {
-                $output[] = $element->build();
+        foreach ($this->children as $child) {
+            if ($child->belongsTo === $this) {
+                $output[] = $child->build();
             }
         }
         return implode('', $output);
