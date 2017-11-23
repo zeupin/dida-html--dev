@@ -56,4 +56,31 @@ class ActiveElementTest extends TestCase
             . '</form>';
         $this->assertEquals($exp, $html);
     }
+
+
+    public function test_addAfter()
+    {
+        $father = ActiveElement::make('div')->setClass('father');
+
+        $son1 = ActiveElement::make('div')->setID('son1');
+        $son2 = ActiveElement::make('div')->setID('son2');
+
+        $son1->addBefore()->setInnerHTML('aaa');
+
+        $html = $son1->build();
+        echo PHP_EOL;
+        echo $html;
+
+        $exp = 'aaa<div id="son1"></div>';
+        $this->assertEquals($exp, $html);
+
+        $father->addChild($son1);
+
+        $html = $father->build();
+        echo PHP_EOL;
+        echo $html;
+
+        $exp = '<div class="father">aaa<div id="son1"></div></div>';
+        $this->assertEquals($exp, $html);
+    }
 }

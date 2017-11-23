@@ -110,6 +110,12 @@ class ActiveElement
     protected $children = [];
 
 
+    /**
+     * 类初始化。
+     * 
+     * @param string $tag
+     * @param string $more
+     */
     public function __construct($tag = null, $more = null)
     {
         if (!is_null($tag)) {
@@ -119,10 +125,26 @@ class ActiveElement
 
 
     /**
-     * 初始化。
+     * 创建一个ActiveElement。
      *
-     * @param string $tag   标签。
-     * @param boolean $autoclose   是否是自闭合。
+     * @param string $tag
+     * @param string $more
+     *
+     * @return \Dida\Html\ActiveElement
+     */
+    public static function &make($tag = null, $more = null)
+    {
+        $element = new ActiveElement();
+        $element->setTag($tag, $more);
+
+        return $element;
+    }
+
+
+    /**
+     * 设置标签。
+     *
+     * @param string $tag    标签。
      * @param string $more   自定义的属性。
      */
     public function setTag($tag = null, $more = null)
@@ -365,7 +387,7 @@ class ActiveElement
         }
 
         // 设置ele元素归属于本元素
-        $ele->belongsTo = &$this;
+        $ele->belongsTo = $this;
 
         return $ele;
     }
@@ -493,7 +515,7 @@ class ActiveElement
         $output = [];
 
         // 前元素
-        if (!is_null($this->before) && ($this->belongsTo === $this)) {
+        if (!is_null($this->before) && ($this->before->belongsTo === $this)) {
             $output[] = $this->before->build();
         }
 
@@ -501,7 +523,7 @@ class ActiveElement
         $output[] = $this->buildMe();
 
         // 后元素
-        if (!is_null($this->after) && ($this->belongsTo === $this)) {
+        if (!is_null($this->after) && ($this->after->belongsTo === $this)) {
             $output[] = $this->after->build();
         }
 
