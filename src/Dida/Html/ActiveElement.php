@@ -79,7 +79,7 @@ class ActiveElement
     protected $innerHTML = '';
 
     /**
-     * 包元素
+     * 包装元素
      * @var \Dida\HTML\ActiveElement
      */
     protected $wrapper = null;
@@ -324,7 +324,7 @@ class ActiveElement
      *
      * @return \Dida\HTML\ActiveElement
      */
-    public function &insertBefore($tag = null)
+    public function &addBefore($tag = null)
     {
         $this->before = new \Dida\HTML\ActiveElement($tag);
         return $this->before;
@@ -338,7 +338,7 @@ class ActiveElement
      *
      * @return \Dida\HTML\ActiveElement
      */
-    public function &insertAfter($tag = null)
+    public function &addAfter($tag = null)
     {
         $this->after = new \Dida\HTML\ActiveElement($tag);
         return $this->after;
@@ -349,7 +349,7 @@ class ActiveElement
      * 新增一个子节点。
      *
      * @param string|null|\Dida\HTML\ActiveElement   $element
-     * 
+     *
      * @return \Dida\HTML\ActiveElement
      */
     public function &addChild($element = null)
@@ -373,7 +373,7 @@ class ActiveElement
 
 
     /**
-     * 构建元素的属性表达式
+     * 构建属性集合
      */
     protected function buildProps()
     {
@@ -396,6 +396,9 @@ class ActiveElement
     }
 
 
+    /**
+     * 构建子节点集合
+     */
     protected function buildChildren()
     {
         /**
@@ -416,6 +419,9 @@ class ActiveElement
     }
 
 
+    /**
+     * 构建本元素
+     */
     protected function buildMe()
     {
         // 如果没有设置tag，只要返回innerHTML即可。
@@ -433,6 +439,9 @@ class ActiveElement
     }
 
 
+    /**
+     * 构建ActiveElement
+     */
     public function build()
     {
         $output = [];
@@ -453,7 +462,7 @@ class ActiveElement
         // 本层：前元素+本元素+后元素
         $result = implode('', $output);
 
-        // 是否有wrapper
+        // 是否有包装元素
         if (is_null($this->wrapper)) {
             return $result;
         } else {
