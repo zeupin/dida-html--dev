@@ -132,11 +132,9 @@ class ActiveElement
      *
      * @return \Dida\Html\ActiveElement
      */
-    public static function &make($tag = null, $more = null)
+    public static function make($tag = null, $more = null)
     {
-        $element = new ActiveElement();
-        $element->setTag($tag, $more);
-
+        $element = new ActiveElement($tag, $more);
         return $element;
     }
 
@@ -368,32 +366,20 @@ class ActiveElement
 
 
     /**
-     * 在本元素的外面包一个元素。
+     * 创建或拿到一个新元素。
      *
-     * @param string $tag
+     * @param string|null|\Dida\HTML\ActiveElement  $element
      *
      * @return \Dida\HTML\ActiveElement
      */
-    public function &wrap($tag = 'div')
-    {
-        $this->wrapper = new \Dida\HTML\ActiveElement($tag);
-        return $this->wrapper;
-    }
-
-
-    /**
-     * 创建或拿到一个新元素。
-     *
-     * @param mixed $tag
-     */
-    protected function &addNew(&$element = null)
+    protected function addNew($element = null)
     {
         if (is_null($element) || is_string($element)) {
             // 如果element为null或者为字符串
-            $ele = new \Dida\HTML\ActiveElement($element);
+            $ele = ActiveElement::make($element);
         } elseif (is_object($element) && is_a($element, __CLASS__)) {
             // 如果$element是个对象，且可以build()
-            $ele = &$element;
+            $ele = $element;
         } else {
             // 其它情况就抛异常
             throw new HtmlException(null, HtmlException::INVALID_ELEMENT_TYPE);
@@ -407,16 +393,35 @@ class ActiveElement
 
 
     /**
-     * 在本元素的前面插一个元素。
+     * 在本元素的外面包一个元素。
      *
-     * @param string|null|\Dida\HTML\ActiveElement   $element
+     * @param string|null|\Dida\HTML\ActiveElement  $element
      *
      * @return \Dida\HTML\ActiveElement
      */
-    public function &addBefore($element = null)
+    public function wrap($element = 'div')
     {
         $ele = $this->addNew($element);
-        $this->before = &$ele;
+
+        // 清空children，确保不会发生递归调用
+        $ele->children = [];
+        $this->wrapper = $ele;
+
+        return $ele;
+    }
+
+
+    /**
+     * 在本元素的前面插一个元素。
+     *
+     * @param string|null|\Dida\HTML\ActiveElement  $element
+     *
+     * @return \Dida\HTML\ActiveElement
+     */
+    public function addBefore($element = null)
+    {
+        $ele = $this->addNew($element);
+        $this->before = $ele;
         return $ele;
     }
 
@@ -424,14 +429,14 @@ class ActiveElement
     /**
      * 在本元素的后面插一个元素。
      *
-     * @param string|null|\Dida\HTML\ActiveElement   $element
+     * @param string|null|\Dida\HTML\ActiveElement  $element
      *
      * @return \Dida\HTML\ActiveElement
      */
-    public function &addAfter($element = null)
+    public function addAfter($element = null)
     {
         $ele = $this->addNew($element);
-        $this->after = &$ele;
+        $this->after = $ele;
         return $ele;
     }
 
@@ -439,14 +444,14 @@ class ActiveElement
     /**
      * 新增一个子节点。
      *
-     * @param string|null|\Dida\HTML\ActiveElement   $element
+     * @param string|null|\Dida\HTML\ActiveElement  $element
      *
      * @return \Dida\HTML\ActiveElement
      */
-    public function &addChild($element = null)
+    public function addChild($element = null)
     {
         $ele = $this->addNew($element);
-        $this->children[] = &$ele;
+        $this->children[] = $ele;
         return $ele;
     }
 

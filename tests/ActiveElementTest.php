@@ -83,4 +83,16 @@ class ActiveElementTest extends TestCase
         $exp = '<div class="father">aaa<div id="son1"></div></div>';
         $this->assertEquals($exp, $html);
     }
+
+
+    public function test_setProp()
+    {
+        echo ' ' . __METHOD__ . "\n";
+
+        $ele = ActiveElement::make("div");
+        $ele->setProp('aaa', 1)
+            ->setProp('selected', true)
+            ->setProp('checked', true);
+        echo $ele->build();
+    }
 }
