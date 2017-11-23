@@ -79,6 +79,11 @@ class ActiveElement
     protected $innerHTML = '';
 
     /**
+     * @var string
+     */
+    protected $forceInnerHTML = null;
+
+    /**
      * 本元素归属于哪个元素
      *
      * @var \Dida\HTML\ActiveElement
@@ -355,13 +360,18 @@ class ActiveElement
 
 
     /**
-     * 获取当前元素的innerHTML。
+     * 获取当前的innerHTML。
      *
      * @return string
      */
     public function getInnerHTML()
     {
-        return $this->innerHTML . $this->buildChildren();
+        // 有forceInnerHTML，返回forceInnerHTML;否则则返回正常的innerHTML
+        if (is_null($this->forceInnerHTML)) {
+            return $this->innerHTML . $this->buildChildren();
+        } else {
+            return $this->forceInnerHTML;
+        }
     }
 
 
@@ -510,12 +520,12 @@ class ActiveElement
      */
     protected function buildMe()
     {
-        // 如果没有设置tag，只要返回innerHTML即可。
+        // 如果没有设置tag，只要返回innerHTML即可
         if (!$this->tag) {
             return $this->getInnerHTML();
         }
 
-        // 如果是自闭合元素
+        // 如果是自闭合元素，没有innerHTML
         if ($this->autoclose) {
             return "<" . $this->opentag . $this->buildProps() . '>';
         }
@@ -552,8 +562,13 @@ class ActiveElement
         if (is_null($this->wrapper)) {
             return $result;
         } else {
-            $this->wrapper->innerHTML = &$result;
-            return $this->wrapper->build();
+            // 强行指定wrapper的innerHTML为本层内容
+            $this->wrapper->forceInnerHTML = &$result;
+            // 以强行指定的innerHTML来build
+            $ret = $this->wrapper->build();
+            // build结束后，恢复正常状态
+            $this->wrapper->forceInnerHTML = null;
+            return $ret;
         }
     }
 }

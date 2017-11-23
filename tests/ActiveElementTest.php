@@ -129,12 +129,130 @@ class ActiveElementTest extends TestCase
 
     public function test_setProp()
     {
-        echo ' ' . __METHOD__ . "\n";
+        echo "\n\n" . __METHOD__ . "\n";
 
         $ele = ActiveElement::make("div");
         $ele->setProp('aaa', 1)
             ->setProp('selected', true)
             ->setProp('checked', true);
         echo $ele->build();
+    }
+
+
+    public function test_issue1_1()
+    {
+        echo "\n\n" . __METHOD__ . "\n";
+
+        $divMain = ActiveElement::make('div')->setID('divMain');
+
+        $divBefore = ActiveElement::make('div')->setID('divBefore');
+        $divAfter = ActiveElement::make('div')->setID('divAfter');
+
+        // 验证 addBefore()和addAfter()
+        $divMain->addBefore($divBefore);
+        $divMain->addAfter($divAfter);
+        $html = $divMain->build();
+        echo "\n$html";
+        $exp = '<div id="divBefore"></div><div id="divMain"></div><div id="divAfter"></div>';
+        $this->assertEquals($exp, $html);
+
+        // 验证 wrap()
+        $wrapper1 = ActiveElement::make('div')->setID('wrapper1');
+        $divMain->wrap($wrapper1);
+        $html = $divMain->build();
+        echo "\n$html";
+        $exp = '<div id="wrapper1"><div id="divBefore"></div><div id="divMain"></div><div id="divAfter"></div></div>';
+        $this->assertEquals($exp, $html);
+    }
+
+
+    public function test_issue1_2()
+    {
+        echo "\n\n" . __METHOD__ . "\n";
+
+        // a系列
+        $a1 = ActiveElement::make('div')->setID('a1');
+        $a2 = ActiveElement::make('div')->setID('a2');
+        $a3 = ActiveElement::make('div')->setID('a3');
+        $a4 = ActiveElement::make('div')->setID('a4');
+
+        $a1->addChild($a2)->addChild($a3)->addChild($a4);
+
+        $html = $a1->build();
+        echo "\n$html";
+
+        $exp = '<div id="a1"><div id="a2"><div id="a3"><div id="a4"></div></div></div></div>';
+        $this->assertEquals($exp, $html);
+
+        // b系列
+        $b1 = ActiveElement::make('div')->setID('b1');
+        $b2 = ActiveElement::make('div')->setID('b2');
+        $b3 = ActiveElement::make('div')->setID('b3');
+        $b4 = ActiveElement::make('div')->setID('b4');
+
+        $b1->addChild($b2)->addChild($b3)->addChild($b4);
+
+        $html = $b1->build();
+        echo "\n$html";
+
+        $exp = '<div id="b1"><div id="b2"><div id="b3"><div id="b4"></div></div></div></div>';
+        $this->assertEquals($exp, $html);
+
+        // a3 抢 b3
+        $a3->addAfter($b3);
+
+        $html_a = $a1->build();
+        $html_b = $b1->build();
+
+        echo "\n$html_a";
+        echo "\n$html_b";
+
+        $this->assertEquals('<div id="a1"><div id="a2">'
+            . '<div id="a3"><div id="a4"></div></div>'
+            . '<div id="b3"><div id="b4"></div></div>'
+            . '</div></div>', $html_a);
+
+        $this->assertEquals('<div id="b1"><div id="b2"></div></div>', $html_b);
+    }
+
+
+    public function test_issue1_3()
+    {
+        echo "\n\n" . __METHOD__ . "\n";
+
+        // a系列
+        $a1 = ActiveElement::make('div')->setID('a1');
+        $a2 = ActiveElement::make('div')->setID('a2');
+        $a3 = ActiveElement::make('div')->setID('a3');
+        $a4 = ActiveElement::make('div')->setID('a4');
+
+        $a1->addChild($a2)->addChild($a3)->addChild($a4);
+
+        // b系列
+        $b1 = ActiveElement::make('div')->setID('b1');
+        $b2 = ActiveElement::make('div')->setID('b2');
+        $b3 = ActiveElement::make('div')->setID('b3');
+        $b4 = ActiveElement::make('div')->setID('b4');
+
+        $b1->addChild($b2)->addChild($b3)->addChild($b4);
+
+        // 测试递归调用
+        $a1->wrap($b1);
+
+        $html_a = $a1->build();
+        $html_b = $b1->build();
+
+        echo "\n$html_a";
+        echo "\n$html_b";
+
+        $this->assertEquals(''
+            . '<div id="b1">'
+            . '<div id="a1"><div id="a2"><div id="a3"><div id="a4"></div></div></div></div>'
+            . '</div>', $html_a);
+
+        $this->assertTrue($b1->belongsTo === $a1);
+        $this->assertFalse($a1->belongsTo === $b1);
+
+        $this->assertEquals('<div id="b1"></div>', $html_b);
     }
 }
