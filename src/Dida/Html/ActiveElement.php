@@ -112,7 +112,7 @@ class ActiveElement
 
     /**
      * 类初始化。
-     * 
+     *
      * @param string $tag
      * @param string $more
      */
@@ -186,6 +186,13 @@ class ActiveElement
     }
 
 
+    public function setType($type)
+    {
+        $this->props['type'] = $type;
+        return $this;
+    }
+
+
     public function setID($id)
     {
         $this->props['id'] = $id;
@@ -211,6 +218,12 @@ class ActiveElement
     {
         $this->props['style'] = $style;
         return $this;
+    }
+
+
+    public function getType()
+    {
+        return $this->props['type'];
     }
 
 
