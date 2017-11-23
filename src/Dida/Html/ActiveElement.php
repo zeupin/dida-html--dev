@@ -390,6 +390,7 @@ class ActiveElement
         } elseif (is_object($element) && is_a($element, __CLASS__)) {
             // 如果$element是个对象，且可以build()
             $ele = $element;
+            $this->antiRecursive($ele, $this);
         } else {
             // 其它情况就抛异常
             throw new HtmlException(null, HtmlException::INVALID_ELEMENT_TYPE);
@@ -399,6 +400,46 @@ class ActiveElement
         $ele->belongsTo = $this;
 
         return $ele;
+    }
+
+
+    /**
+     * @param \Dida\HTML\ActiveElement $tocheck
+     * @param \Dida\HTML\ActiveElement $which
+     */
+    protected function antiRecursive(&$tocheck, &$which)
+    {
+        if (!is_null($tocheck->before)) {
+            if ($tocheck->before === $which) {
+                $tocheck->before = null;
+            } else {
+                $this->antiRecursive($tocheck->before, $which);
+            }
+        }
+
+        if (!is_null($tocheck->after)) {
+            if ($tocheck->after === $which) {
+                $tocheck->after = null;
+            } else {
+                $this->antiRecursive($tocheck->after, $which);
+            }
+        }
+
+        if (!is_null($tocheck->wrapper)) {
+            if ($tocheck->wrapper === $which) {
+                $tocheck->wrapper = null;
+            } else {
+                $this->antiRecursive($tocheck->wrapper, $which);
+            }
+        }
+
+        foreach ($tocheck->children as $index => $child) {
+            if ($child === $which) {
+                unset($tocheck->children[$index]);
+            } else {
+                $this->antiRecursive($child, $which);
+            }
+        }
     }
 
 
