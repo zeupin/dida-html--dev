@@ -35,13 +35,13 @@ class HtmlException extends \Exception
 
     /**
      * 无效的元素类型
-     * 1. addNew()时，$element只能是 <字符串><null><ActiveElement对象>
+     * 1. addNew()时，$element只准是 <字符串><null><ActiveElement对象>
      */
     const INVALID_ELEMENT_TYPE = 1003;
 
     /**
      * 无效的Tag类型
-     * 1. setTag()时，$tag只能是 <字符串><null>。
+     * 1. setTag()时，$tag只准是 <字符串><null>。
      */
     const INVALID_TAG_TYPE = 1004;
 
