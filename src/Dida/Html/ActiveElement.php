@@ -17,7 +17,7 @@ class ActiveElement
     /**
      * Version
      */
-    const VERSION = '20171122';
+    const VERSION = '20171124';
 
     /**
      * 布尔属性的列表
